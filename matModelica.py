@@ -129,6 +129,7 @@ with open(modelicaFile) as infile, open(modified_file_path, 'w') as outfile:
                     line = line.replace(to_replace, replace_to)
                 else:
                     line = line.replace(info[3], str(Q_0))
+            print('Initialised element: %s..' %(name+bus))
         except IndexError:
             pass
         
