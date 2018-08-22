@@ -9,7 +9,7 @@ To use the script, do the following:
 
 - Download the matModelica.py file.
 - From terminal, use  
-`python /path/to/matModelica.py "path/to/modelica/file.mo" "path/to/result/file.mat"`
+`python "/path/to/matModelica.py" "path/to/modelica/file.mo" "path/to/result/file.mat"`
 
 ## Modelica model format
 The script will work only if the Modelica model is in a required format. For proper working, the following rules must be adhered to to properly initialise the Modelica OpenIPSL models:
