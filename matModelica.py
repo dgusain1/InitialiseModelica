@@ -59,6 +59,10 @@ def _todict(matobj):
 
 #This has been developed by @dgusain1
 def check_regex(testString):
+    '''
+    This function checks each line of Modelica model code and identified loads and generators.
+    Also identifies the voltages, angles (for loads and gens) and reactive powers (for generators only) to be replaced/updated.    
+    '''
     #print(testString)
     voltage_regex = r'V_0\s?=\s?\d\.\d*'
     angle_regex = r'angle_0\s?=\s?-?\d+[\.\d*]*'#|\d+\.\d*]'
@@ -81,8 +85,6 @@ def check_regex(testString):
     return [name, voltage, angle, q]
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#matlabFile = r'D:\digvijaygusain\Desktop\result.mat'
-
 #load matlab results file
 print("Loading matlab result file...")
 matResult = loadmat(matlabFile)
@@ -104,7 +106,6 @@ genVariables = np.array(temp, dtype=[('bus',np.int),('Q_0',np.float)])  #,('volt
 
 
 #input the *.mo file to be changed
-#modelicaFile = r'C:\Users\digvijaygusain\OneDrive\TU_Delft\PhD\Teaching Assistantship\IEPG_Course_2019\Models\14 bus with wind\IEEE14Bus.mo'
 print("Initialising %s.mo.." %(modelica_model_name[:-12]))
 with open(modelicaFile) as infile, open(modified_file_path, 'w') as outfile:
     for line in infile:
