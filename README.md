@@ -20,3 +20,7 @@ The script will work only if the Modelica model is in a required format. For pro
   
 
 The current scipt has been tested with modelica models created using OpenIPSL library and OpenModelica. Matpower with MATLAB 2016 was used to run power flows on corresponding system.
+
+## Copyrights
+Copyright August 2018 - current [Digvijay Gusain](https://www.tudelft.nl/staff/d.gusain/), [Intelligent Electrical Power Grids, Delft University of Technology, The Netherlands](https://www.tudelft.nl/en/eemcs/the-faculty/departments/electrical-sustainable-energy/intelligent-electrical-power-grids-iepg-group/).
+The author can be contacted by email: d.gusain@tudelft.nl. This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0.
