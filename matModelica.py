@@ -66,7 +66,7 @@ def check_regex(testString):
     '''
     #print(testString)
     voltage_regex = r'V_0\s?=\s?\d[\.\d*]*'
-    angle_regex = r'angle_0\s?=\s?-?\d+[\.\d*]*'#|\d+\.\d*]'
+    angle_regex = r'angle_0\s?=\s?-?\d+[\.\d*]*'
     name_regex = r'\w+\s\w+'
     P_regex = r'P_0\s?=\s?\d+[\.\d*]*'
     Q_regex = r'Q_0\s?=\s?\d+[\.\d*]*'
@@ -84,15 +84,15 @@ def check_regex(testString):
         q = re.findall(Q_regex, testString)[0].split(' = ')[1]
     except IndexError:
         p, q = '0', '0'
-#    print([name, voltage, angle, q])
+
     return [name, voltage, angle, p, q]
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #load matlab results file
-#print("Loading matlab result file...")
+print("Loading matlab result file...")
 matResult = loadmat(matlabFile)
 
-#print("Organizing results..")
+print("Organizing results..")
 #get results for bus and gen
 busResults = matResult['results']['bus']
 genResults = matResult['results']['gen']
@@ -105,97 +105,77 @@ busVoltages = np.array(busVoltagesTemp, dtype=[('bus',np.int),('voltage',np.floa
 #Similarly create arrays for generators
 #variables are: bus number, voltage, angle, and Q_0
 temp = [(int(x[0]), x[1], x[2]) for x in genResults]
-genVariables = np.array(temp, dtype=[('bus',np.int),('P_0',np.float),('Q_0',np.float)])  #,('voltage',np.float),('angle',np.float)
+genVariables = np.array(temp, dtype=[('bus',np.int),('P_0',np.float),('Q_0',np.float)])  
 
 def replacement(prefix, infoVal, replacedVal, line):
     
     to_replace = prefix+'_0 = '+infoVal
     replace_to = prefix+'_0 = '+str(replacedVal)
-#    print('original line:')
-#    print(line)
     line = line.replace(to_replace, replace_to)
-#    print('changed line:')
-#    print(line)
     return line
     
-#input the *.mo file to be changed
-#print("Initialising %s.mo.." %(modelica_model_name[:-12]))
+print("Initialising %s.mo.." %(modelica_model_name[:-12]))
+count = 1
 with open(modelicaFile) as infile, open(modified_file_path, 'w') as outfile:
     for line in infile:
-#        print(line)
-        try:
-            info = check_regex(line)
-            (name, bus) = info[0]
-            
-            voltage = list(busVoltages['voltage'])[list(busVoltages['bus']).index(int(bus))]
-            angle = list(busVoltages['angle'])[list(busVoltages['bus']).index(int(bus))]
-#            print((name,voltage, info))
-#            sleep(2)
-            
-            if info[1] in '0123':
-                line = replacement('V', info[1], voltage, line)
-            else:
-                line = line.replace(info[1], str(voltage))
+        if not line.startswith('//'):
+            try:
+                info = check_regex(line)
+                (name, bus) = info[0]
                 
-            if info[2] in '0123':
-                line = replacement('angle', info[2], angle, line)
-            else:
-                line = line.replace(info[2], str(angle))
-            
-#            
-#            if info[1] in '0123':
-#                to_replace = 'V_0 = '+info[1]
-#                replace_to = 'V_0 = '+str(voltage)
-#                line = line.replace(to_replace, replace_to)
-#            else:
-#                line = line.replace(info[1], str(voltage))
-#                
-#            
-##            print((name,bus, voltage, angle))
-#            if info[2] in '0123':
-#                to_replace = 'angle_0 = '+info[1]
-#                replace_to = 'angle_0 = '+str(angle)
-#                line = line.replace(to_replace, replace_to)
-#            else:
-#                line = line.replace(info[2], str(angle))
-            
-            
-            if name.lower() == 'gen':
-                P_0 = list(genVariables['P_0'])[list(genVariables['bus']).index(int(bus))]
-                Q_0 = list(genVariables['Q_0'])[list(genVariables['bus']).index(int(bus))]
-                if info[3] in '0123':
-                    line = replacement('P', info[3], P_0, line)
-    #                to_replace = 'Q_0 = '+info[1]
-    #                replace_to = 'Q_0 = '+str(Q_0)
-    #                line = line.replace(to_replace, replace_to)
+                voltage = list(busVoltages['voltage'])[list(busVoltages['bus']).index(int(bus))]
+                angle = list(busVoltages['angle'])[list(busVoltages['bus']).index(int(bus))]
+
+                if info[1] in '0123':
+                    line = replacement('V', info[1], voltage, line)
                 else:
-                    line = line.replace(info[3], str(P_0))
+                    if float(info[1]) != float(voltage):
+                        line = line.replace(info[1], str(voltage))
                 
-                if info[4] in '0123':
-                    line = replacement('Q', info[4], Q_0, line)
+                if info[2] in '0123':
+                    line = replacement('angle', info[2], angle, line)
                 else:
-                    line = line.replace(info[4], str(Q_0))
-            
-            elif name.lower() == 'load':
-                P_0 = list(busVoltages['P_0'])[list(busVoltages['bus']).index(int(bus))]
-                Q_0 = list(busVoltages['Q_0'])[list(busVoltages['bus']).index(int(bus))]
-                if info[3] in '0123':
-                    line = replacement('P', info[3], P_0, line)
-                else:
-                    line = line.replace(info[3], str(P_0))
+                    if float(info[2]) != float(angle):
+                        line = line.replace(info[2], str(angle))
                 
-                if info[4] in '0123':
-                    line = replacement('Q', info[4], Q_0, line)
-                else:
-                    line = line.replace(info[4], str(Q_0))
-#            print('\n\n\n')
-            print('Initialised element: %s..' %(name+bus))
-        except Exception as e:
-#            print(e)
-#            sleep(3)
-            pass
+                if name.lower() == 'gen':
+                    P_0 = list(genVariables['P_0'])[list(genVariables['bus']).index(int(bus))]
+                    Q_0 = list(genVariables['Q_0'])[list(genVariables['bus']).index(int(bus))]
+                    
+                    if info[3] in '0123':
+                        line = replacement('P', info[3], P_0, line)
+                    else:
+                        if float(info[3]) != float(P_0):
+                            line = line.replace(info[3], str(P_0))
+                    
+                    if info[4] in '0123':
+                        line = replacement('Q', info[4], Q_0, line)
+                    else:
+                        if float(info[4]) != float(Q_0):
+                            line = line.replace(info[4], str(Q_0))
+                    
+                elif name.lower() == 'load':
+                    P_0 = list(busVoltages['P_0'])[list(busVoltages['bus']).index(int(bus))]
+                    Q_0 = list(busVoltages['Q_0'])[list(busVoltages['bus']).index(int(bus))]
+                    if info[3] in '0123':
+                        line = replacement('P', info[3], P_0, line)
+                    else:
+                        if float(info[3]) != float(P_0):
+                            line = line.replace(info[3], str(P_0))
+                    
+                    if info[4] in '0123':
+                        line = replacement('Q', info[4], Q_0, line)
+                    else:
+                        if float(info[4]) != float(Q_0):
+                            line = line.replace(info[4], str(Q_0))
+    
+                print('Initialised element: %s..' %(name+bus))
+
+            except Exception as e:
+                pass
+        
         
         
         outfile.write(line)
-print('Done..')
+print('Done.., Paypal me €20.')
 
