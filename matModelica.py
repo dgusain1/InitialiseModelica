@@ -168,7 +168,7 @@ with open(modelicaFile) as infile, open(modified_file_path, 'w') as outfile:
                     else:
                         if float(info[4]) != float(Q_0):
                             line = line.replace(info[4], str(Q_0))
-    
+
                 print('Initialised element: %s..' %(name+bus))
 
             except Exception as e:
